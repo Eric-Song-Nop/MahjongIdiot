@@ -1,0 +1,85 @@
+2019-12-31 10:45:40:     User(ID249403E8-3bUcGFAP) was authenticated successfully
+2019-12-31 10:45:43:     Game type = "Red bonus tile" : True, "Open tanyao" : True, "Game  length" : tonpusen
+2019-12-31 10:45:44:     A new game started!
+2019-12-31 10:45:44:     The replay link can be found here: http://tenhou.net/0/?log=None&tw=1
+2019-12-31 10:45:44:     Players are: [test_ma - 新人 - None, COM - 新人 - None, COM - 新人 - None, COM - 新人 - None]
+2019-12-31 10:45:46:     --------------------------------------------------
+2019-12-31 10:45:46:     Players: [test_ma - 新人 - 25000, COM - 新人 - 25000, COM - 新人 - 25000, COM - 新人 - 25000]
+2019-12-31 10:45:46:     Dealer: COM - 新人 - 25000
+2019-12-31 10:45:46:  
+2019-12-31 10:45:46:     [Player 3] draws a tile...
+2019-12-31 10:45:46: 
+2019-12-31 10:45:47:     [Player 1] draws a tile...
+2019-12-31 10:45:47:     [Player 2] draws a tile...
+2019-12-31 10:45:47:     [Player 3] draws a tile...
+2019-12-31 10:45:48: 
+2019-12-31 10:45:48: 
+2019-12-31 10:45:48:     Remaining tiles: 65
+2019-12-31 10:45:48:     --------------------------------------------------
+2019-12-31 10:45:48: 
+2019-12-31 10:45:49:     [Player 1] draws a tile...
+2019-12-31 10:45:49:     [Player 2] draws a tile...
+2019-12-31 10:45:49:     [Player 3] draws a tile...
+2019-12-31 10:45:50: 
+2019-12-31 10:45:50: 
+2019-12-31 10:45:50:     Remaining tiles: 61
+2019-12-31 10:45:50:     --------------------------------------------------
+2019-12-31 10:45:50: 
+2019-12-31 10:45:51:     [Player 1] draws a tile...
+2019-12-31 10:45:51:     [Player 2] draws a tile...
+2019-12-31 10:45:51:     [Player 3] draws a tile...
+2019-12-31 10:45:52: 
+2019-12-31 10:45:52: 
+2019-12-31 10:45:52:     Remaining tiles: 57
+2019-12-31 10:45:52:     --------------------------------------------------
+2019-12-31 10:45:52: 
+2019-12-31 10:45:53:     [Player 1] draws a tile...
+2019-12-31 10:45:53:     [Player 2] draws a tile...
+2019-12-31 10:45:54:     [Player 3] draws a tile...
+2019-12-31 10:45:54: 
+2019-12-31 10:45:54: 
+2019-12-31 10:45:54:     Remaining tiles: 53
+2019-12-31 10:45:54:     --------------------------------------------------
+2019-12-31 10:45:54: 
+2019-12-31 10:45:55:     [Player 1] draws a tile...
+2019-12-31 10:45:55:     [Player 2] draws a tile...
+2019-12-31 10:45:56:     [Player 3] draws a tile...
+2019-12-31 10:45:56: 
+2019-12-31 10:45:57: 
+2019-12-31 10:45:57:     Remaining tiles: 49
+2019-12-31 10:45:57:     --------------------------------------------------
+2019-12-31 10:45:57: 
+2019-12-31 10:45:57:     [Player 1] draws a tile...
+2019-12-31 10:45:58:     [Player 2] draws a tile...
+2019-12-31 10:45:59: 
+2019-12-31 10:45:59:     [Player 1] draws a tile...
+2019-12-31 10:45:59:     [Player 2] draws a tile...
+2019-12-31 10:46:00:     [Player 3] draws a tile...
+2019-12-31 10:46:00: 
+2019-12-31 10:46:01: 
+2019-12-31 10:46:01:     Remaining tiles: 43
+2019-12-31 10:46:01:     --------------------------------------------------
+2019-12-31 10:46:01: 
+2019-12-31 10:46:01:     [Player 1] draws a tile...
+2019-12-31 10:46:01:     [Player 2] draws a tile...
+2019-12-31 10:46:02:     [Player 3] draws a tile...
+2019-12-31 10:46:03: Unexpected exception
+Traceback (most recent call last):
+  File "G:\AI\MahjongAI-master\main.py", line 17, in connect_and_play
+    return client.start_game()
+  File "G:\AI\MahjongAI-master\client\tenhou_client.py", line 129, in start_game
+    if self._handle_draw_tile(msg):
+  File "G:\AI\MahjongAI-master\client\tenhou_client.py", line 509, in _handle_draw_tile
+    self.drawer and self.drawer.draw(drawn_tile_136)
+  File "my_gui_main.py", line 678, in draw
+    self._add_tile_image(self.draw_pos[0], self.draw_pos[1], tile, 0)
+  File "my_gui_main.py", line 909, in _add_tile_image
+    x, y, image=self.photes[player][tile], anchor='nw'
+  File "E:\Program Files\Python\Python37\lib\tkinter\__init__.py", line 2486, in create_image
+    return self._create('image', args, kw)
+  File "E:\Program Files\Python\Python37\lib\tkinter\__init__.py", line 2477, in _create
+    *(args + self._options(cnf, kw))))
+_tkinter.TclError: invalid command name ".!canvas"
+2019-12-31 10:46:03: End the game...
+2019-12-31 10:46:03:     Game was ended unexpected
+2019-12-31 10:46:03: 

@@ -1,0 +1,17 @@
+
+[Time] 2019-12-31 10:45:44.061327
+[Game history link] http://tenhou.net/0/?log=None&tw=1
+
+[Time] 2019-12-31 10:47:54.139569
+[Game history link] http://tenhou.net/0/?log=None&tw=3
+
+[Time] 2019-12-31 11:15:52.360672
+[Game history link] http://tenhou.net/0/?log=None&tw=0
+    [R0T19] NO ONE WINS, NO MORE TILES...
+[Time] 2019-12-31 11:18:39.377446
+[Game history link] http://tenhou.net/0/?log=None&tw=0
+    [R0T19] NO ONE WINS, NO MORE TILES...    [R1T18] NO ONE WINS, NO MORE TILES...
+[Time] 2019-12-31 11:30:46.380956
+[Game history link] http://tenhou.net/0/?log=None&tw=1
+    [R0T19] NO ONE WINS, NO MORE TILES...    [R1T19] NO ONE WINS, NO MORE TILES...    [R2T19] NO ONE WINS, NO MORE TILES...    [R3T18] NO ONE WINS, NO MORE TILES...    [R4T19] NO ONE WINS, NO MORE TILES...test_ma - 新人 - 31000.0,COM - 新人 - 23000.0,COM - 新人 - 23000.0,COM - 新人 - 23000.0
+

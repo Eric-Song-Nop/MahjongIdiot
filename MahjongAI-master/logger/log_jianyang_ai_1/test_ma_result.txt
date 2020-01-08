@@ -1,0 +1,7 @@
+
+[Time] 2019-12-30 20:46:10.262866
+[Game history link] http://tenhou.net/0/?log=None&tw=0
+    [R0T18] NO ONE WINS, NO MORE TILES...    [R1T18] NO ONE WINS, NO MORE TILES...    [R2T17] NO ONE WINS, NO MORE TILES...
+[Time] 2019-12-31 10:14:09.939442
+[Game history link] http://tenhou.net/0/?log=None&tw=3
+    [R0T17] NO ONE WINS, NO MORE TILES...

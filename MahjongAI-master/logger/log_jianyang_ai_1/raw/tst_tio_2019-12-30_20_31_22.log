@@ -1,0 +1,15 @@
+2019-12-30 20:31:22:     User(ID696E3BCC-hLHNE8Wf) was authenticated successfully
+2019-12-30 20:31:48: Unexpected exception
+Traceback (most recent call last):
+  File "G:\AI\MahjongAI-master\main.py", line 17, in connect_and_play
+    return client.start_game()
+  File "G:\AI\MahjongAI-master\client\tenhou_client.py", line 100, in start_game
+    if not self._looking_for_a_game():
+  File "G:\AI\MahjongAI-master\client\tenhou_client.py", line 220, in _looking_for_a_game
+    msgs = self._get()
+  File "G:\AI\MahjongAI-master\client\tenhou_client.py", line 683, in _get
+    msgs = self.skt.recv(2048).decode('utf-8')
+ConnectionAbortedError: [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+2019-12-30 20:31:48: End the game...
+2019-12-30 20:31:48:     Game was ended unexpected
+2019-12-30 20:31:48: 
