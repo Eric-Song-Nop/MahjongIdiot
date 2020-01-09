@@ -17,6 +17,17 @@ def getValue(tiles):
         if tiles[i] >= 2:
             newtiles = tuple(tiles[j] if j!=i else tiles[j]-2 for j in range(9))
             results_1.update(eliminateTriple(newtiles))
+    
+    # add tuples
+    if len(results_1) == 0:
+        for i in range(9):
+            if tiles[i] == 1:
+                newtiles = tuple(tiles[j] if j!=i else tiles[j]-1 for j in range(9))
+                cur_res = eliminateTriple(newtiles)
+                for res in cur_res:
+                    results_1.add(
+                        tuple(res[j] if j!=i else res[j]-1 for j in range(9))
+                    )
 
     # not consider jiang (only triples)
     results_2 = eliminateTriple(tiles)
@@ -26,7 +37,7 @@ def getValue(tiles):
 
 def eliminateTriple(tiles):
     if len(tiles) == 0:
-        return []
+        return set()
 
     results = set([tiles])
 
@@ -81,6 +92,16 @@ def eliminateTriple(tiles):
                 results.add(
                     tuple(res[j] if j!= i-1 else res[j]-1 for j in range(9))
                 )
+    
+    # 2 tiles only head and tail
+    for i in range(9-2):
+        if tiles[i] and tiles[i+2]:
+            newtiles = tuple(tiles[j]-1 if j in (i, i+2) else tiles[j] for j in range(9))
+            cur_res = eliminateTriple(newtiles)
+            for res in cur_res:
+                results.add(
+                    tuple(res[j] if j!= i+1 else res[j]-1 for j in range(9))
+                )
 
     # eliminate this:
     if len(results) > 5:
@@ -95,6 +116,13 @@ def need_to_change(man_tiles, pin_tiles, suo_tiles):
     res_man2, res_man3 = getValue(man_tiles)
     res_pin2, res_pin3 = getValue(pin_tiles)
     res_suo2, res_suo3 = getValue(suo_tiles)
+
+    # print(res_man2)
+    # print(res_man3)
+    # print(res_pin2)
+    # print(res_pin3)
+    # print(res_suo2)
+    # print(res_suo3)
 
     for i in res_man2:
         for j in res_pin3:
@@ -178,5 +206,25 @@ def test2():
         print(i)
     print(num)
 
+def test3():
+    man_tiles = (0,0,1,0,1,1,1,0,0)
+    pin_tiles = (0,1,0,1,2,1,1,1,0)
+    suo_tiles = (0,0,1,0,1,0,0,1,0)
+
+    res, num = need_to_change(man_tiles, pin_tiles, suo_tiles)
+    for i in res[:10]:
+        print(i)
+    print(num)
+
+def test4():
+    man_tiles = (0,0,0,1,0,1,1,0,0)
+    pin_tiles = (0,0,0,1,0,0,1,0,0)
+    suo_tiles = (0,0,1,0,1,0,1,0,0)
+
+    res, num = need_to_change(man_tiles, pin_tiles, suo_tiles)
+    for i in res[:10]:
+        print(i)
+    print(num)
+
 if __name__ == "__main__":
-    test2()
+    test4()
