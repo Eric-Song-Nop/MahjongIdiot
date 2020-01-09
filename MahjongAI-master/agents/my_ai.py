@@ -5,6 +5,8 @@ from agents.ai_interface import AIInterface
 from client.mahjong_meld import Meld
 from client.mahjong_tile import Tile
 
+from agents.utils.duanyaojiu import duanYaoJiu
+
 __author__ = "Tujin Ge"
 __copyright__ = "Copyright 2020, Mahjong AI"
 __email__ = "geyx@shanghaitech.edu.cn"
@@ -23,18 +25,42 @@ class MyAI(AIInterface):
         # ind = random.randint(0, l-1)
         # return self.tiles136[ind]
 
+        # candidates = self.tiles136.copy()
+        # for tile in self.tiles136:
+        #     tile34 = tile // 4
+        #     if self.hand34.count(tile34) >= 3:
+        #         candidates.remove(tile)
+        #     elif tile34 % 9 > 1 and (tile34 - 2) in self.hand34 and (tile34 - 1) in self.hand34:
+        #         candidates.remove(tile)
+        #     elif 8 > tile34 % 9 > 0 and (tile34 - 1) in self.hand34 and (tile34 + 1) in self.hand34:
+        #         candidates.remove(tile)
+        #     elif 7 > tile34 % 9 and (tile34 + 1) in self.hand34 and (tile34 + 2) in self.hand34:
+        #         candidates.remove(tile)
+        # return random.choice(candidates) if len(candidates) else random.choice(self.tiles136)
+
         candidates = self.tiles136.copy()
         for tile in self.tiles136:
-            tile34 = tile // 4
-            if self.hand34.count(tile34) >= 3:
+            if not (tile//4 in (0, 8, 9, 17, 18, 26) or tile//4 >= 27):
                 candidates.remove(tile)
-            elif tile34 % 9 > 1 and (tile34 - 2) in self.hand34 and (tile34 - 1) in self.hand34:
-                candidates.remove(tile)
-            elif 8 > tile34 % 9 > 0 and (tile34 - 1) in self.hand34 and (tile34 + 1) in self.hand34:
-                candidates.remove(tile)
-            elif 7 > tile34 % 9 and (tile34 + 1) in self.hand34 and (tile34 + 2) in self.hand34:
-                candidates.remove(tile)
-        return random.choice(candidates) if len(candidates) else random.choice(self.tiles136)
+        
+        if len(candidates):
+            return random.choice(candidates)
+        
+        res, num = duanYaoJiu(self.tiles136)
+        print(res)
+        wan, pin, suo = res[0]
+        for tile in self.tiles136:
+            if 0 <= tile//4 < 9:
+                if wan[tile//4] > 0:
+                    candidates.append(tile)
+            elif 9 <= tile//4 < 18:
+                if pin[tile//4 - 9] > 0:
+                    candidates.append(tile)
+            elif 18 <= tile//4 < 27:
+                if suo[tile//4 - 18] > 0:
+                    candidates.append(tile)
+        return random.choice(candidates)
+
 
     def should_call_kan(self, tile136, from_opponent):
         """
@@ -47,42 +73,42 @@ class MyAI(AIInterface):
         :param from_opponent: Whether the tile was from opponent
         :return: [Kan type], [to be called tile] if should call Kan else False, False
         """
-        tile34 = tile136 // 4
+        # tile34 = tile136 // 4
 
-        if from_opponent:  # (1) Check Minkan
-            should_kan = True  # TODO: should be decided by your own strategy
-            if should_kan:
-                # the tiles in hand should be removed from the set of hand tiles after having decided
-                self_tiles = [t for t in self.tiles136 if t // 4 == tile34]
-                for t in self_tiles:
-                    self.tiles136.remove(t)
-                # developer could access self.thclient.both_log(msg) to display content in logs
-                msg = "        [Bot calls minkan]: {}".format(Tile.t34_to_g([tile136 // 4] * 4))
-                self.thclient.both_log(msg)
-                # return the result
-                return Meld.KAN, tile136
-        else:  # (2) Check Kan
-            ankan_tile = None
-            if self.hand34.count(tile34) == 4:  # bot gots the fourth tile at this turn
-                ankan_tile = tile34
-            else:
-                own_tile = [tile for tile in set(self.hand34) if self.hand34.count(tile) == 4]
-                if own_tile and len(own_tile) > 0:  # bot had a kan in hand before and did not call kan
-                    ankan_tile = own_tile[0]
-            if ankan_tile:
-                should_call_ankan = True  # TODO: should be decided by your own strategy
-                if should_call_ankan:
-                    msg = "        🤖[Bot calls ankan]: {}".format(Tile.t34_to_g([ankan_tile] * 4))
-                    self.thclient.both_log(msg)
-                    return Meld.KAN, self.tile_34_to_136(ankan_tile)
-            # (3) Check Chakan
-            for meld in self.meld136:
-                if meld.tiles[0] // 4 == meld.tiles[1] // 4 == tile34:
-                    should_call_chakan = True  # TODO: should be decided by your own strategy
-                    if should_call_chakan:
-                        msg = "        🤖[Bot calls chakan]: {}".format(Tile.t34_to_g([tile136 // 4] * 4))
-                        self.thclient.both_log(msg)
-                        return Meld.CHANKAN, tile136
+        # if from_opponent:  # (1) Check Minkan
+        #     should_kan = True  # TODO: should be decided by your own strategy
+        #     if should_kan:
+        #         # the tiles in hand should be removed from the set of hand tiles after having decided
+        #         self_tiles = [t for t in self.tiles136 if t // 4 == tile34]
+        #         for t in self_tiles:
+        #             self.tiles136.remove(t)
+        #         # developer could access self.thclient.both_log(msg) to display content in logs
+        #         msg = "        [Bot calls minkan]: {}".format(Tile.t34_to_g([tile136 // 4] * 4))
+        #         self.thclient.both_log(msg)
+        #         # return the result
+        #         return Meld.KAN, tile136
+        # else:  # (2) Check Kan
+        #     ankan_tile = None
+        #     if self.hand34.count(tile34) == 4:  # bot gots the fourth tile at this turn
+        #         ankan_tile = tile34
+        #     else:
+        #         own_tile = [tile for tile in set(self.hand34) if self.hand34.count(tile) == 4]
+        #         if own_tile and len(own_tile) > 0:  # bot had a kan in hand before and did not call kan
+        #             ankan_tile = own_tile[0]
+        #     if ankan_tile:
+        #         should_call_ankan = True  # TODO: should be decided by your own strategy
+        #         if should_call_ankan:
+        #             msg = "        🤖[Bot calls ankan]: {}".format(Tile.t34_to_g([ankan_tile] * 4))
+        #             self.thclient.both_log(msg)
+        #             return Meld.KAN, self.tile_34_to_136(ankan_tile)
+        #     # (3) Check Chakan
+        #     for meld in self.meld136:
+        #         if meld.tiles[0] // 4 == meld.tiles[1] // 4 == tile34:
+        #             should_call_chakan = True  # TODO: should be decided by your own strategy
+        #             if should_call_chakan:
+        #                 msg = "        🤖[Bot calls chakan]: {}".format(Tile.t34_to_g([tile136 // 4] * 4))
+        #                 self.thclient.both_log(msg)
+        #                 return Meld.CHANKAN, tile136
 
         return False, False
 
@@ -96,31 +122,31 @@ class MyAI(AIInterface):
         tile34 = tile136 // 4
 
         # (1) Check Pon
-        if self.hand34.count(tile34) >= 2:
-            should_call_pon = True  # TODO: should be decided by your own strategy
-            if should_call_pon:
-                self_tiles = [t136 for t136 in self.tiles136 if t136 // 4 == tile136 // 4]
-                msg = "        🤖[Bot calls pon]: {}".format(Tile.t34_to_g([tile136 // 4] * 3))
-                self.thclient.both_log(msg)
-                return Meld(Meld.PON, self_tiles[0:2] + [tile136], True, tile136), 0
+        # if self.hand34.count(tile34) >= 2:
+        #     should_call_pon = True  # TODO: should be decided by your own strategy
+        #     if should_call_pon:
+        #         self_tiles = [t136 for t136 in self.tiles136 if t136 // 4 == tile136 // 4]
+        #         msg = "        🤖[Bot calls pon]: {}".format(Tile.t34_to_g([tile136 // 4] * 3))
+        #         self.thclient.both_log(msg)
+        #         return Meld(Meld.PON, self_tiles[0:2] + [tile136], True, tile136), 0
 
-        # (2) Check Chi
-        if might_call_chi and tile34 < 27:
-            # There might be multiple possibilities to call Chi
-            chi_candidates = []
-            if tile34 % 9 > 1 and (tile34 - 2) in self.hand34 and (tile34 - 1) in self.hand34:
-                chi_candidates.append([tile34 - 2, tile34 - 1])
-            if 8 > tile34 % 9 > 0 and (tile34 - 1) in self.hand34 and (tile34 + 1) in self.hand34:
-                chi_candidates.append([tile34 - 1, tile34 + 1])
-            if 7 > tile34 % 9 and (tile34 + 1) in self.hand34 and (tile34 + 2) in self.hand34:
-                chi_candidates.append([tile34 + 1, tile34 + 2])
-            for candidate in chi_candidates:
-                should_chi = True  # TODO: should be decided by your own strategy
-                if should_chi:
-                    opt1, opt2 = self.tile_34_to_136(candidate[0]), self.tile_34_to_136(candidate[1])
-                    msg = "        😊[Bot calls chow]: {}".format(Tile.t34_to_g(candidate + [tile34]))
-                    self.thclient.both_log(msg)
-                    return Meld(Meld.CHI, sorted([opt1, opt2, tile136]), True, tile136), 0
+        # # (2) Check Chi
+        # if might_call_chi and tile34 < 27:
+        #     # There might be multiple possibilities to call Chi
+        #     chi_candidates = []
+        #     if tile34 % 9 > 1 and (tile34 - 2) in self.hand34 and (tile34 - 1) in self.hand34:
+        #         chi_candidates.append([tile34 - 2, tile34 - 1])
+        #     if 8 > tile34 % 9 > 0 and (tile34 - 1) in self.hand34 and (tile34 + 1) in self.hand34:
+        #         chi_candidates.append([tile34 - 1, tile34 + 1])
+        #     if 7 > tile34 % 9 and (tile34 + 1) in self.hand34 and (tile34 + 2) in self.hand34:
+        #         chi_candidates.append([tile34 + 1, tile34 + 2])
+        #     for candidate in chi_candidates:
+        #         should_chi = True  # TODO: should be decided by your own strategy
+        #         if should_chi:
+        #             opt1, opt2 = self.tile_34_to_136(candidate[0]), self.tile_34_to_136(candidate[1])
+        #             msg = "        😊[Bot calls chow]: {}".format(Tile.t34_to_g(candidate + [tile34]))
+        #             self.thclient.both_log(msg)
+        #             return Meld(Meld.CHI, sorted([opt1, opt2, tile136]), True, tile136), 0
 
         return False, False
 
