@@ -46,18 +46,25 @@ class MyAI(AIInterface):
         if len(candidates):
             return random.choice(candidates)
         
-        res, num = duanYaoJiu(self.tiles136)
-        wan, pin, suo = res[0]
-        for tile in self.tiles136:
-            if 0 <= tile//4 < 9:
-                if wan[tile//4] > 0:
-                    candidates.append(tile)
-            elif 9 <= tile//4 < 18:
-                if pin[tile//4 - 9] > 0:
-                    candidates.append(tile)
-            elif 18 <= tile//4 < 27:
-                if suo[tile//4 - 18] > 0:
-                    candidates.append(tile)
+        print(self.tiles136)
+        res, num = duanYaoJiu(self.tiles136.copy())
+        if len(res) == 0:
+            return random.choice(self.tiles136)
+        for wan, pin, suo in res[:10]:
+            # wan, pin, suo = res[0]
+            for tile in self.tiles136:
+                if 0 <= tile//4 < 9:
+                    if wan[tile//4] > 0:
+                        candidates.append(tile)
+                elif 9 <= tile//4 < 18:
+                    if pin[tile//4 - 9] > 0:
+                        candidates.append(tile)
+                elif 18 <= tile//4 < 27:
+                    if suo[tile//4 - 18] > 0:
+                        candidates.append(tile)
+        if len(candidates) == 0:
+            print(wan, pin, suo)
+            return random.choice(self.tiles136)
         return random.choice(candidates)
 
 
