@@ -7,6 +7,7 @@ from client.mahjong_tile import Tile
 
 from agents.utils.duanyaojiu import duanYaoJiu
 from agents.utils import util
+import copy
 
 __author__ = "Tujin Ge"
 __copyright__ = "Copyright 2020, Mahjong AI"
@@ -42,7 +43,7 @@ class MyAI(AIInterface):
         candidates = util.Counter()
         for tile in self.tiles136:
             if tile//4 in (0, 8, 9, 17, 18, 26) or tile//4 >= 27:
-                candidates[tile] = 1
+                candidates[tile] = 10
         
         if len(candidates) == 0:
             
@@ -58,7 +59,7 @@ class MyAI(AIInterface):
             # Create candidates and thinking about possiblities to win
             possible_tiles_feature = [int(4*(1 - feature)) for feature in self.game_table.revealed_feature]
             for wan, pin, suo in res:
-                success_rate = 1000
+                success_rate = 1000000
                 for i in range(9):
                     if wan[i] < 0:
                         if -wan[i] > possible_tiles_feature[i]:
@@ -84,6 +85,7 @@ class MyAI(AIInterface):
                         if suo[tile//4 - 18] > 0:
                             candidates[tile] += success_rate
         
+        copy_candidates = copy.deepcopy(candidates)
         # Thinking about safety by DBN
         if len(self.discard136) == 0:
             self.opponents_danger = [util.Counter(), util.Counter(), util.Counter()]
@@ -92,7 +94,8 @@ class MyAI(AIInterface):
                     opponent_danger[i] = 1
                 opponent_danger.divideAll(1000)
         else:
-            for tile in candidates.keys():
+            keys = list(candidates.keys())
+            for tile in keys:
                 for opponent_danger in self.opponents_danger:
                     candidates[tile] -= opponent_danger[tile//4]
                     if candidates[tile] < 0:
@@ -104,8 +107,10 @@ class MyAI(AIInterface):
         
 
         if len(candidates) == 0:
-            print(wan, pin, suo)
-            return random.choice(self.tiles136)
+            if len(copy_candidates) != 0:
+                return util.sample(copy_candidates)
+            else:
+                return random.choice(self.tiles136)
         return util.sample(candidates)
 
 
