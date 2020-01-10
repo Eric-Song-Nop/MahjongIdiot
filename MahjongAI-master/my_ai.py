@@ -6,6 +6,7 @@ from client.mahjong_meld import Meld
 from client.mahjong_tile import Tile
 
 from agents.utils.duanyaojiu import duanYaoJiu
+from agents.utils import util
 
 __author__ = "Tujin Ge"
 __copyright__ = "Copyright 2020, Mahjong AI"
@@ -38,34 +39,74 @@ class MyAI(AIInterface):
         #         candidates.remove(tile)
         # return random.choice(candidates) if len(candidates) else random.choice(self.tiles136)
 
-        candidates = self.tiles136.copy()
+        candidates = util.Counter()
         for tile in self.tiles136:
-            if not (tile//4 in (0, 8, 9, 17, 18, 26) or tile//4 >= 27):
-                candidates.remove(tile)
+            if tile//4 in (0, 8, 9, 17, 18, 26) or tile//4 >= 27:
+                candidates[tile] = 1
         
-        if len(candidates):
-            return random.choice(candidates)
+        if len(candidates) == 0:
+            
+            # === BEGIN testing print ====
+            print(self.tiles136)
+            print(self.game_table.revealed_feature)
+            # === END testing print ===
+
+            res, num = duanYaoJiu(self.tiles136.copy())
+            if len(res) == 0:
+                return random.choice(self.tiles136)
+
+            # Create candidates and thinking about possiblities to win
+            possible_tiles_feature = [int(4*(1 - feature)) for feature in self.game_table.revealed_feature]
+            for wan, pin, suo in res:
+                success_rate = 1000
+                for i in range(9):
+                    if wan[i] < 0:
+                        if -wan[i] > possible_tiles_feature[i]:
+                            continue
+                        success_rate *= (possible_tiles_feature[i] / self.game_table.count_remaining_tiles)**(-wan[i])
+                    if pin[i] < 0:
+                        if -pin[i] > possible_tiles_feature[i+9]:
+                            continue
+                        success_rate *= (possible_tiles_feature[i+9] / self.game_table.count_remaining_tiles)**(-pin[i])
+                    if suo[i] < 0:
+                        if -suo[i] > possible_tiles_feature[i+18]:
+                            continue
+                        success_rate *= (possible_tiles_feature[i+18] / self.game_table.count_remaining_tiles)**(-suo[i])
+
+                for tile in self.tiles136:
+                    if 0 <= tile//4 < 9:
+                        if wan[tile//4] > 0:
+                            candidates[tile] += success_rate
+                    elif 9 <= tile//4 < 18:
+                        if pin[tile//4 - 9] > 0:
+                            candidates[tile] += success_rate
+                    elif 18 <= tile//4 < 27:
+                        if suo[tile//4 - 18] > 0:
+                            candidates[tile] += success_rate
         
-        print(self.tiles136)
-        res, num = duanYaoJiu(self.tiles136.copy())
-        if len(res) == 0:
-            return random.choice(self.tiles136)
-        for wan, pin, suo in res[:10]:
-            # wan, pin, suo = res[0]
-            for tile in self.tiles136:
-                if 0 <= tile//4 < 9:
-                    if wan[tile//4] > 0:
-                        candidates.append(tile)
-                elif 9 <= tile//4 < 18:
-                    if pin[tile//4 - 9] > 0:
-                        candidates.append(tile)
-                elif 18 <= tile//4 < 27:
-                    if suo[tile//4 - 18] > 0:
-                        candidates.append(tile)
+        # Thinking about safety by DBN
+        if len(self.discard136) == 0:
+            self.opponents_danger = [util.Counter(), util.Counter(), util.Counter()]
+            for opponent_danger in self.opponents_danger:
+                for i in range(34):
+                    opponent_danger[i] = 1
+                opponent_danger.divideAll(1000)
+        else:
+            for tile in candidates.keys():
+                for opponent_danger in self.opponents_danger:
+                    candidates[tile] -= opponent_danger[tile//4]
+                    if candidates[tile] < 0:
+                        candidates.pop(tile)
+
+            for opponent_danger in self.opponents_danger:
+                for i in range(34):
+                    opponent_danger[i] *= 1.5
+        
+
         if len(candidates) == 0:
             print(wan, pin, suo)
             return random.choice(self.tiles136)
-        return random.choice(candidates)
+        return util.sample(candidates)
 
 
     def should_call_kan(self, tile136, from_opponent):
@@ -130,6 +171,25 @@ class MyAI(AIInterface):
         # (1) Check Pon
         if self.hand34.count(tile34) >= 2:
             should_call_pon = True  # TODO: should be decided by your own strategy
+
+            if tile34 in (0, 8, 9, 17, 18, 26) or tile34 >= 27:
+                should_call_pon = False
+            else:
+                possible_tiles_feature = [int(4*(1 - feature)) for feature in self.game_table.revealed_feature]
+                possible_tiles = []
+                for i, feature in enumerate(possible_tiles_feature):
+                    if i<27:
+                        possible_tiles.extend([i]*feature)
+                if len(possible_tiles) == 0:
+                    possible_tiles = [random.randint(0, 27-1)]
+                try:
+                    res1, num1 = duanYaoJiu(self.tiles136 + [tile136])
+                    res2, num2 = duanYaoJiu(self.tiles136 + [random.choice(possible_tiles)*4])
+                    if num1 >= num2:
+                        should_call_pon = False
+                except:
+                    should_call_pon = False
+
             if should_call_pon:
                 self_tiles = [t136 for t136 in self.tiles136 if t136 // 4 == tile136 // 4]
                 msg = "        🤖[Bot calls pon]: {}".format(Tile.t34_to_g([tile136 // 4] * 3))
@@ -148,6 +208,26 @@ class MyAI(AIInterface):
                 chi_candidates.append([tile34 + 1, tile34 + 2])
             for candidate in chi_candidates:
                 should_chi = True  # TODO: should be decided by your own strategy
+
+                for tile in (candidate[0], candidate[1], tile34):
+                    if tile in (0, 8, 9, 17, 18, 26) or tile >= 27:
+                        should_chi = False
+                if should_chi:
+                    possible_tiles_feature = [int(4*(1 - feature)) for feature in self.game_table.revealed_feature]
+                    possible_tiles = []
+                    for i, feature in enumerate(possible_tiles_feature):
+                        if i<27:
+                            possible_tiles.extend([i]*feature)
+                    if len(possible_tiles) == 0:
+                        possible_tiles = [random.randint(0, 27-1)]
+                    try:
+                        res1, num1 = duanYaoJiu(self.tiles136 + [tile136])
+                        res2, num2 = duanYaoJiu(self.tiles136 + [random.choice(possible_tiles)*4])
+                        if num1 >= num2:
+                            should_chi = False
+                    except:
+                        should_chi = False
+                
                 if should_chi:
                     opt1, opt2 = self.tile_34_to_136(candidate[0]), self.tile_34_to_136(candidate[1])
                     msg = "        😊[Bot calls chow]: {}".format(Tile.t34_to_g(candidate + [tile34]))
@@ -180,4 +260,8 @@ class MyAI(AIInterface):
         :param opp_seat: seat number of opponent
         :return: none
         """
-        pass
+        try:
+            discard = self.game_table.get_player(opp_seat).discard136[-1]
+            self.opponents_danger[opp_seat-1][discard] = 0.000001
+        except:
+            pass
